@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Gallery Hub — Manajemen Keuangan Syariah</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0a0f;
+      --surface:  #13131a;
+      --surface2: #1c1c27;
+      --border:   #252535;
+      --text:     #eeeef5;
+      --muted:    #666680;
+      --subtle:   #33334a;
+      --gold:     #4345d4;
+      --gold2:    #f0cc7a;
+      --radius:   16px;
+      --nav-h:    56px;
+      --body:     'Plus Jakarta Sans', sans-serif;
+      --head:     'Bebas Neue', sans-serif;
+      --ease:     cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Grain */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0.25;
+    }
+
+    img { display: block; width: 100%; object-fit: cover; }
+    button { cursor: pointer; font-family: inherit; border: none; background: none; }
+    a { text-decoration: none; color: inherit; }
+
+    /* ===== NAVBAR ===== */
+    #navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--nav-h);
+      z-index: 100;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 1rem;
+      gap: 0.75rem;
+    }
+
+    .nav-logo {
+      font-family: var(--head);
+      font-size: 1.3rem;
+      letter-spacing: 0.05em;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .nav-logo-dot {
+      width: 7px; height: 7px;
+      background: var(--gold);
+      border-radius: 50%;
+    }
+
+    .nav-spacer { flex: 1; }
+
+    .nav-crumb {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .nav-crumb .nc-cur {
+      color: var(--gold2);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 50px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-back:hover { color: var(--text); border-color: var(--subtle); }
+    .btn-back svg { width: 14px; height: 14px; }
+
+    /* ===== APP SHELL ===== */
+    #app { padding-top: var(--nav-h); }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ===== HOME HERO ===== */
+    .home-hero {
+      padding: clamp(2.5rem, 8vw, 5rem) 1.25rem clamp(1.5rem, 4vw, 2.5rem);
+      max-width: 900px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* Gold orb */
+    .home-hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: -60px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(212,168,67,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 24px; height: 1px;
+      background: var(--gold);
+    }
+
+    .hero-title {
+      font-family: var(--head);
+      font-size: clamp(3rem, 14vw, 7rem);
+      line-height: 0.92;
+      letter-spacing: 0.02em;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .hero-title em {
+      font-style: normal;
+      color: var(--gold);
+    }
+
+    .hero-desc {
+      font-size: clamp(0.8rem, 3vw, 0.9rem);
+      color: var(--muted);
+      font-weight: 300;
+      max-width: 380px;
+      line-height: 1.8;
+    }
+
+    /* ===== CATEGORY GRID ===== */
+    .cats-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.25rem clamp(3rem, 8vw, 5rem);
+    }
+
+    .sec-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sec-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .sec-count { font-size: 11px; color: var(--subtle); }
+
+    /* Masonry-ish grid */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    @media (min-width: 640px) { .cat-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 960px) { .cat-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .cat-card {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1rem;
+      cursor: pointer;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: border-color 0.25s, transform 0.25s var(--ease), background 0.25s;
+      min-height: 130px;
+    }
+    .cat-card:hover {
+      background: var(--surface2);
+      border-color: var(--subtle);
+      transform: translateY(-2px);
+    }
+
+    /* Colored stripe */
+    .cat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--c, var(--gold));
+      border-radius: 3px 3px 0 0;
+    }
+
+    .cc-num {
+      font-family: var(--head);
+      font-size: 2rem;
+      color: var(--border);
+      line-height: 1;
+      letter-spacing: 0.02em;
+      transition: color 0.25s;
+    }
+    .cat-card:hover .cc-num { color: var(--subtle); }
+
+    .cc-title {
+      font-family: var(--head);
+      font-size: 1.15rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      line-height: 1.1;
+    }
+
+    .cc-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+    }
+    .cc-items { font-size: 10px; color: var(--muted); font-weight: 600; }
+    .cc-arr {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      transition: all 0.25s var(--ease);
+      flex-shrink: 0;
+    }
+    .cat-card:hover .cc-arr {
+      background: var(--c, var(--gold));
+      border-color: var(--c, var(--gold));
+      color: #000;
+      transform: rotate(45deg);
+    }
+    .cc-arr svg { width: 12px; height: 12px; }
+
+    /* ===== NOTICE ===== */
+    .notice {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.25rem clamp(2rem, 6vw, 4rem);
+    }
+    .notice-inner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.04em;
+    }
+
+    /* ===== CATEGORY PAGE HEADER ===== */
+    .cat-pg-header {
+      padding: clamp(1.5rem, 5vw, 3rem) 1.25rem 1.25rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .cph-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+    .cph-title {
+      font-family: var(--head);
+      font-size: clamp(2.5rem, 10vw, 5rem);
+      letter-spacing: 0.03em;
+      line-height: 0.95;
+      color: var(--text);
+    }
+    .cph-sub {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+      margin-top: 0.5rem;
+    }
+    .cph-stats {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1.25rem;
+    }
+    .cph-stat-n {
+      font-family: var(--head);
+      font-size: 1.8rem;
+      color: var(--text);
+      line-height: 1;
+    }
+    .cph-stat-l {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* ===== GALLERY GRID ===== */
+    .gallery-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.25rem clamp(3rem, 8vw, 5rem);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    @media (min-width: 600px) { .gallery-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (min-width: 900px) { .gallery-grid { grid-template-columns: repeat(4, 1fr); } }
+
+    .g-item {
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      background: var(--surface);
+      cursor: pointer;
+      aspect-ratio: 4/3;
+    }
+    .g-item.poster { aspect-ratio: 3/4; }
+
+    .g-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s var(--ease);
+    }
+    .g-item:hover img { transform: scale(1.06); }
+
+    /* Always visible gradient overlay on mobile */
+    .g-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 50%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0.75rem;
+      opacity: 1;
+      transition: opacity 0.3s;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .g-overlay { opacity: 0; }
+      .g-item:hover .g-overlay { opacity: 1; }
+    }
+
+    .g-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 2px 7px;
+      background: var(--gold);
+      border-radius: 3px;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #000;
+      width: fit-content;
+      margin-bottom: 0.3rem;
+    }
+    .g-badge svg { width: 8px; height: 8px; }
+
+    .g-name {
+      font-family: var(--head);
+      font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+      letter-spacing: 0.03em;
+      color: #fff;
+      line-height: 1.1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Play button on hover (desktop) */
+    .g-play {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: all 0.3s var(--ease);
+      pointer-events: none;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .g-play { display: flex; }
+      .g-item:hover .g-play {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+    .g-play svg { width: 14px; height: 14px; color: #fff; margin-left: 2px; }
+
+    .g-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem;
+      color: var(--muted);
+    }
+
+    /* ===== MODAL =====
+       Mobile: slides up from bottom, fills screen height properly.
+       Desktop: centered box.
+    ===== */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      /* Mobile default: align to bottom */
+      align-items: flex-end;
+      justify-content: center;
+    }
+    #modal-overlay.open { display: flex; }
+
+    @media (min-width: 640px) {
+      #modal-overlay {
+        align-items: center;
+        padding: 1.5rem;
+      }
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-width: 860px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: sheet-up 0.35s var(--ease) both;
+
+      /* Mobile: bottom sheet */
+      border-radius: 20px 20px 0 0;
+      max-height: 95dvh;
+    }
+
+    @media (min-width: 640px) {
+      .modal-sheet {
+        border-radius: 20px;
+        max-height: calc(100dvh - 3rem);
+        animation: modal-in 0.3s var(--ease) both;
+      }
+    }
+
+    @keyframes sheet-up {
+      from { opacity: 0; transform: translateY(60px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes modal-in {
+      from { opacity: 0; transform: scale(0.96) translateY(12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Drag handle */
+    .modal-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 10px auto 0;
+      flex-shrink: 0;
+    }
+    @media (min-width: 640px) { .modal-handle { display: none; } }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .modal-title {
+      font-family: var(--head);
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .modal-close {
+      /* 44×44 tap target */
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .modal-close:hover, .modal-close:active {
+      background: var(--surface2);
+      color: var(--text);
+    }
+    .modal-close svg { width: 16px; height: 16px; }
+
+    .modal-body { overflow: hidden; flex: 1; min-height: 0; }
+
+    /*
+      VIDEO CONTAINER — key mobile logic:
+      
+      On mobile (< 640px):
+        The sheet is max 95dvh.
+        Header ≈ 56px + handle ≈ 24px = ~80px overhead.
+        So video height = 95dvh - 80px.
+        This ensures the iframe fills the bottom sheet naturally
+        and all controls are visible above the home indicator.
+      
+      On desktop (≥ 640px):
+        Use 56vw constrained by 70vh for a centered box feel.
+        Use aspect-ratio 16/9 within a max-height container.
+    */
+    .modal-video-wrap {
+      width: 100%;
+      background: #000;
+      overflow: hidden;
+
+      /* Mobile: fill remainder of sheet */
+      height: calc(95dvh - 80px);
+    }
+
+    @media (min-width: 640px) {
+      .modal-video-wrap {
+        height: auto;
+        aspect-ratio: 16 / 9;
+        max-height: calc(100dvh - 3rem - 56px);
+      }
+    }
+
+    .modal-video-wrap iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* Poster modal */
+    .modal-poster {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-height: calc(95dvh - 80px);
+      overflow: hidden;
+    }
+    @media (min-width: 640px) {
+      .modal-poster { max-height: calc(100dvh - 3rem - 56px); }
+    }
+    .modal-poster img {
+      width: 100%;
+      height: auto;
+      max-height: inherit;
+      object-fit: contain;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim { animation: fade-up 0.45s var(--ease) both; }
+    .d1 { animation-delay: 0.05s; }
+    .d2 { animation-delay: 0.10s; }
+    .d3 { animation-delay: 0.15s; }
+    .d4 { animation-delay: 0.20s; }
+    .d5 { animation-delay: 0.25s; }
+    .d6 { animation-delay: 0.30s; }
+
+    :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-logo" onclick="navigate('home')" role="button" tabindex="0">
+    <span class="nav-logo-dot"></span>
+    GALLERY HUB
+  </div>
+
+  <div class="nav-spacer"></div>
+
+  <div class="nav-crumb" id="breadcrumb" style="display:none;">
+    <span onclick="navigate('home')" style="cursor:pointer;color:var(--muted);">Home</span>
+    <span style="color:var(--subtle);">›</span>
+    <span class="nc-cur" id="breadcrumb-label"></span>
+  </div>
+
+  <button class="btn-back" id="btn-home" onclick="navigate('home')" style="display:none;" aria-label="Kembali">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Back
+  </button>
+</nav>
+
+<div id="app">
+
+  <!-- HOME -->
+  <div id="page-home" class="page active">
+    <div class="home-hero">
+      <div class="hero-eyebrow anim">Gallery Collection</div>
+      <h1 class="hero-title anim d1">FINANCIAL<br><em>TECHNOLOGY</em></h1>
+      <p class="hero-desc anim d2">Koleksi video & poster karya semua kelompok, terorganisir per tugas dan pertemuan.</p>
+    </div>
+
+    <div class="cats-section">
+      <div class="sec-head anim d3">
+        <span class="sec-label">Semua Kategori</span>
+        <span class="sec-count" id="total-count"></span>
+      </div>
+      <div class="cat-grid" id="cat-grid"></div>
+    </div>
+
+    <div class="notice anim d4">
+      <div class="notice-inner">📌 Website ini dibuat oleh Mahasiswa Manajemen Keuangan (02)!!</div>
+    </div>
+  </div>
+
+  <!-- CATEGORY PAGE -->
+  <div id="page-category" class="page">
+    <div class="cat-pg-header" id="cat-pg-header"></div>
+    <div class="gallery-wrap">
+      <div class="gallery-grid" id="gallery-grid"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-sheet" id="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title"></span>
+      <button class="modal-close" onclick="closeModal()" aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+  /* ================================================================
+     DATA
+  ================================================================ */
+  const GALLERY_DATA = [
+    {
+      id: 'pertemuan1', title: 'Quiz Pertama', subtitle: 'Quiz 1 — Karya semua kelompok', accent: '#5b9cf6',
+      items: [
+        { id: 1,  type: 'video', title: 'Kelompok 1 — Quiz 1', src: 'https://drive.google.com/file/d/1GnmrYpa_nZxgOoXTYyJNMVATDZY1NJ1X/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1GnmrYpa_nZxgOoXTYyJNMVATDZY1NJ1X' },
+        { id: 2,  type: 'video', title: 'Kelompok 2 — Quiz 1', src: 'https://drive.google.com/file/d/1Rq8YZiNZbUZdw5cPw2Ro-wqTiCktb5Hh/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1Rq8YZiNZbUZdw5cPw2Ro-wqTiCktb5Hh' },
+        { id: 3,  type: 'video', title: 'Kelompok 3 — Quiz 1', src: 'https://drive.google.com/file/d/1K82EIW1VkgmOcM-HPG7ON0xSuIlguBNV/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1K82EIW1VkgmOcM-HPG7ON0xSuIlguBNV' },
+        { id: 4,  type: 'video', title: 'Kelompok 4 — Quiz 1', src: 'https://drive.google.com/file/d/1vzZXym2tZkOdjmzRJ8lx6Vok_n6QjmHv/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1vzZXym2tZkOdjmzRJ8lx6Vok_n6QjmHv' },
+        { id: 5,  type: 'video', title: 'Kelompok 5 — Quiz 1', src: 'https://drive.google.com/file/d/1fyDl4BKDyPu3QG0yQacB5pmwhwJYKcSY/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1fyDl4BKDyPu3QG0yQacB5pmwhwJYKcSY' },
+        { id: 6,  type: 'video', title: 'Kelompok 6 — Quiz 1', src: 'https://drive.google.com/file/d/1l0faIwhpMlRG903oGIpRlG9bkuulNa12/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1l0faIwhpMlRG903oGIpRlG9bkuulNa12' },
+        { id: 7,  type: 'video', title: 'Kelompok 7 — Quiz 1', src: 'https://drive.google.com/file/d/16CNFi-2HgC-49WSyTSw_j1i5YR2RtwOn/preview', thumbnail: 'https://drive.google.com/thumbnail?id=16CNFi-2HgC-49WSyTSw_j1i5YR2RtwOn' },
+        { id: 8,  type: 'video', title: 'Kelompok 8 — Quiz 1', src: 'https://drive.google.com/file/d/150xYfV_rtTQVvx6qffd-5w7jMJ8BFkPp/preview', thumbnail: 'https://drive.google.com/thumbnail?id=150xYfV_rtTQVvx6qffd-5w7jMJ8BFkPp' },
+        { id: 9,  type: 'video', title: 'Kelompok 9 — Quiz 1', src: 'https://drive.google.com/file/d/119bdK6-jX8uEKSk91WJ1gO-aapbYbSu1/preview', thumbnail: 'https://drive.google.com/thumbnail?id=119bdK6-jX8uEKSk91WJ1gO-aapbYbSu1' },
+        { id: 10, type: 'video', title: 'Kelompok 10 — Quiz 1', src: 'https://drive.google.com/file/d/1oWZNaqSb6A1y4_ONwnuBMUEmQ9I5D_O5/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1oWZNaqSb6A1y4_ONwnuBMUEmQ9I5D_O5' },
+        { id: 11, type: 'video', title: 'Kelompok 11 — Quiz 1', src: 'https://drive.google.com/file/d/1V1RjEihmb2fONaal8Dc3-ga5twxA5po0/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1V1RjEihmb2fONaal8Dc3-ga5twxA5po0' },
+      ]
+    },
+    {
+      id: 'pertemuan2', title: 'UTS', subtitle: 'UTS — Karya semua kelompok', accent: '#a78bfa',
+      items: [
+        { id: 12, type: 'video', title: 'Kelompok 1 — UTS', src: 'https://drive.google.com/file/d/1j8YZnhc7QQ1RNTqknW7FF_12swP0Bsuz/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1j8YZnhc7QQ1RNTqknW7FF_12swP0Bsuz' },
+        { id: 13, type: 'video', title: 'Kelompok 2 — UTS', src: 'https://drive.google.com/file/d/1znrETLpaTOdo0-sE3VV-JcIk2WU3tqe8/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1znrETLpaTOdo0-sE3VV-JcIk2WU3tqe8' },
+        { id: 14, type: 'video', title: 'Kelompok 3 — UTS', src: 'https://drive.google.com/file/d/1OEdTclAAIcdiwifJx2zgqLjjyAftm_6-/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1OEdTclAAIcdiwifJx2zgqLjjyAftm_6-' },
+        { id: 15, type: 'video', title: 'Kelompok 4 — UTS', src: 'https://drive.google.com/file/d/1wgMj7QzqKD0SuvVZWFiuUapNlhVwQ1N9/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1wgMj7QzqKD0SuvVZWFiuUapNlhVwQ1N9' },
+        { id: 16, type: 'video', title: 'Kelompok 5 — UTS', src: 'https://drive.google.com/file/d/1TwMS4-ixnRvl3CgR09kjaVXIjhG-dsar/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1TwMS4-ixnRvl3CgR09kjaVXIjhG-dsar' },
+        { id: 17, type: 'video', title: 'Kelompok 6 — UTS', src: 'https://drive.google.com/file/d/1TkbXsvHGCmHn72iRlrZB-XYXTGS0JSZ3/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1TkbXsvHGCmHn72iRlrZB-XYXTGS0JSZ3' },
+        { id: 18, type: 'video', title: 'Kelompok 7 — UTS', src: 'https://drive.google.com/file/d/1-VgFnoThQj8GovS-Lzs2e90BZETHd98p/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1-VgFnoThQj8GovS-Lzs2e90BZETHd98p' },
+        { id: 19, type: 'video', title: 'Kelompok 8 — UTS', src: 'https://drive.google.com/file/d/1T9WVVGfR5nG2uhyQ5x2OQ8CR0RCfFnsr/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1T9WVVGfR5nG2uhyQ5x2OQ8CR0RCfFnsr' },
+        { id: 20, type: 'video', title: 'Kelompok 9 — UTS', src: 'https://drive.google.com/file/d/10-DQgJp7B1bOzeSO0uqC6phceR9dYgvQ/preview', thumbnail: 'https://drive.google.com/thumbnail?id=10-DQgJp7B1bOzeSO0uqC6phceR9dYgvQ' },
+        { id: 21, type: 'video', title: 'Kelompok 10 — UTS', src: 'https://drive.google.com/file/d/1qJjzlKrC68vGth7Qr095te7lDmVFNjos/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1qJjzlKrC68vGth7Qr095te7lDmVFNjos' },
+        { id: 22, type: 'video', title: 'Kelompok 11 — UTS', src: 'https://drive.google.com/file/d/18Zs_HN4RQ1jCycHAUC2nYvnW3zUK0aH3/preview', thumbnail: 'https://drive.google.com/thumbnail?id=18Zs_HN4RQ1jCycHAUC2nYvnW3zUK0aH3' },
+      ]
+    },
+    {
+      id: 'pertemuan3', title: 'Quiz Kedua', subtitle: 'Quiz 2 — Karya semua kelompok', accent: '#34d399',
+      items: [
+        { id: 23, type: 'video', title: 'Kelompok 1 — Quiz 2', src: 'https://drive.google.com/file/d/1tbbl8P93a0Pd5XhXFPqbvL1Zd_vesBkX/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1tbbl8P93a0Pd5XhXFPqbvL1Zd_vesBkX' },
+        { id: 24, type: 'video', title: 'Kelompok 2 — Quiz 2', src: 'https://drive.google.com/file/d/1fK33Qy6U1srTyT504vsjkETI52z_TeyD/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1fK33Qy6U1srTyT504vsjkETI52z_TeyD' },
+        { id: 25, type: 'video', title: 'Kelompok 3 — Quiz 2', src: 'https://drive.google.com/file/d/1uGQ052hf3F8O1HTG9IKP7xRKV4wYIQHK/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1uGQ052hf3F8O1HTG9IKP7xRKV4wYIQHK' },
+        { id: 26, type: 'video', title: 'Kelompok 4 — Quiz 2', src: 'https://drive.google.com/file/d/10d25SewrDKwKo3LUM7czNlkm0SI_c-KT/preview', thumbnail: 'https://drive.google.com/thumbnail?id=10d25SewrDKwKo3LUM7czNlkm0SI_c-KT' },
+        { id: 27, type: 'video', title: 'Kelompok 5 — Quiz 2', src: 'https://drive.google.com/file/d/1D9cVuW9GGdcL_P1SZTqKdOvoresmg_wg/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1D9cVuW9GGdcL_P1SZTqKdOvoresmg_wg' },
+        { id: 28, type: 'video', title: 'Kelompok 6 — Quiz 2', src: 'https://drive.google.com/file/d/1x-a_BC3vz79IQieBBllkRD25ajQ_yPv4/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1x-a_BC3vz79IQieBBllkRD25ajQ_yPv4' },
+        { id: 29, type: 'video', title: 'Kelompok 7 — Quiz 2', src: 'https://drive.google.com/file/d/1-8g2wUh2fzHWuqw0V0EVjJQ1xbfoFrKh/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1-8g2wUh2fzHWuqw0V0EVjJQ1xbfoFrKh' },
+        { id: 30, type: 'video', title: 'Kelompok 8 — Quiz 2', src: 'https://drive.google.com/file/d/1yXpkx0WIOUtSvjoLqoV43HcuQ5OsHdBm/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1yXpkx0WIOUtSvjoLqoV43HcuQ5OsHdBm' },
+        { id: 31, type: 'video', title: 'Kelompok 9 — Quiz 2', src: 'https://drive.google.com/file/d/1QrZ-6oo3dWh7RQXrgOtheIdVHqbH-pCR/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1QrZ-6oo3dWh7RQXrgOtheIdVHqbH-pCR' },
+        { id: 32, type: 'video', title: 'Kelompok 10 — Quiz 2', src: 'https://drive.google.com/file/d/19gTttrrMbW2nb0LgF39y5vkK32nStubt/preview', thumbnail: 'https://drive.google.com/thumbnail?id=19gTttrrMbW2nb0LgF39y5vkK32nStubt' },
+        { id: 33, type: 'video', title: 'Kelompok 11 — Quiz 2', src: 'https://drive.google.com/file/d/1xFeRX5SnyXgqHFCtZwTh9Cwd1PcYZJyX/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1xFeRX5SnyXgqHFCtZwTh9Cwd1PcYZJyX' },
+     ]
+    },
+    {
+      id: 'pertemuan4', title: 'UAS', subtitle: 'UAS — Karya semua kelompok', accent: '#fb923c',
+      items: [
+        { id: 34, type: 'video', title: 'Kelompok 1 — UAS', src: 'https://drive.google.com/file/d/1kab2WvHYIBynPHb1WD9O6xGgEPP7F5Sp/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1kab2WvHYIBynPHb1WD9O6xGgEPP7F5Sp' },
+        { id: 35, type: 'video', title: 'Kelompok 2 — UAS', src: 'https://drive.google.com/file/d/1M4VdWfgM5Q8-u_m3fdNt2IggaPICKfvn/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1M4VdWfgM5Q8-u_m3fdNt2IggaPICKfvn' },
+        { id: 36, type: 'video', title: 'Kelompok 3 — UAS', src: 'https://drive.google.com/file/d/1Tgl_i1AmY_AIbYRSv7IkxvyOYq9ERazT/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1Tgl_i1AmY_AIbYRSv7IkxvyOYq9ERazT' },
+        { id: 37, type: 'video', title: 'Kelompok 4 — UAS', src: 'https://drive.google.com/file/d/1XzICZWq6d_7Re69pwgUCep9c8ptzRrJS/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1XzICZWq6d_7Re69pwgUCep9c8ptzRrJS' },
+        { id: 38, type: 'video', title: 'Kelompok 5 — UAS', src: 'https://drive.google.com/file/d/1GQrda9oDZWvxsq61gyUto6GjJHiJz2Xu/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1GQrda9oDZWvxsq61gyUto6GjJHiJz2Xu' },
+        { id: 39, type: 'video', title: 'Kelompok 6 — UAS', src: 'https://drive.google.com/file/d/1CwEbiCh-xWINbQCpovi2EVc9mFze2Dhq/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1CwEbiCh-xWINbQCpovi2EVc9mFze2Dhq' },
+        { id: 40, type: 'video', title: 'Kelompok 7 — UAS', src: 'https://drive.google.com/file/d/15brXNxMgly-8eP9zpwrl3tIq1WE53G0c/preview', thumbnail: 'https://drive.google.com/thumbnail?id=15brXNxMgly-8eP9zpwrl3tIq1WE53G0c' },
+        { id: 41, type: 'video', title: 'Kelompok 8 — UAS', src: 'https://drive.google.com/file/d/1PE4jDL_by6yo3_OhoPlktrbvh6lokM4W/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1PE4jDL_by6yo3_OhoPlktrbvh6lokM4W' },
+        { id: 42, type: 'video', title: 'Kelompok 9 — UAS', src: 'https://drive.google.com/file/d/1v8pvuWkYj5LKC7P6nIJqaUbOv7Wf4TwG/preview', thumbnail: 'https://drive.google.com/thumbnail?id=1v8pvuWkYj5LKC7P6nIJqaUbOv7Wf4TwG' },
+        { id: 43, type: 'video', title: 'Kelompok 10 — UAS', src: 'https://drive.google.com/file/d/19h_MY0yukHZ5IuuK12gEpD0esEW6Vpxn/preview', thumbnail: 'https://drive.google.com/thumbnail?id=19h_MY0yukHZ5IuuK12gEpD0esEW6Vpxn' },
+        { id: 44, type: 'video', title: 'Kelompok 11 — UAS', src: 'https://drive.google.com/file/d/15SipZDHxJUPjtInHixHN3dev4n-2MYoI    /preview', thumbnail: 'https://drive.google.com/thumbnail?id=15SipZDHxJUPjtInHixHN3dev4n-2MYoI  ' },
+     
+    ]
+    },
+
+  ];
+
+  /* ================================================================
+     SVG ICONS
+  ================================================================ */
+  const IC_PLAY = `<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+  const IC_IMG  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`;
+  const IC_ARR  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function fmtId(id) {
+    if (id === 'uts') return 'UTS';
+    if (id === 'uas') return 'UAS';
+    return id.replace(/([a-zA-Z]+)(\d+)/, (_, w, n) =>
+      w.charAt(0).toUpperCase() + w.slice(1) + ' ' + n
+    );
+  }
+
+  /* ================================================================
+     RENDER HOME
+  ================================================================ */
+  function renderHome() {
+    const total = GALLERY_DATA.reduce((s, c) => s + c.items.length, 0);
+    document.getElementById('total-count').textContent =
+      `${GALLERY_DATA.length} kategori · ${total} item`;
+
+    document.getElementById('cat-grid').innerHTML = GALLERY_DATA.map((cat, i) => `
+      <div class="cat-card anim d${Math.min(i+1,6)}"
+           style="--c:${cat.accent}"
+           onclick="navigate('${cat.id}')"
+           role="button" tabindex="0"
+           aria-label="Buka ${cat.title}">
+        <div class="cc-num">${pad(i+1)}</div>
+        <div class="cc-title">${cat.title}</div>
+        <div class="cc-meta">
+          <span class="cc-items">${cat.items.length} ITEM</span>
+          <span class="cc-arr">${IC_ARR}</span>
+        </div>
+      </div>
+    `).join('');
+
+    document.querySelectorAll('.cat-card').forEach(el => {
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+      });
+    });
+  }
+
+  /* ================================================================
+     RENDER CATEGORY
+  ================================================================ */
+  function renderCategory(id) {
+    const cat = GALLERY_DATA.find(c => c.id === id);
+    if (!cat) { navigate('home'); return; }
+
+    const vids    = cat.items.filter(i => i.type === 'video').length;
+    const posters = cat.items.filter(i => i.type === 'poster').length;
+
+    document.getElementById('cat-pg-header').innerHTML = `
+      <div class="anim">
+        <div class="cph-tag" style="color:${cat.accent}">● ${fmtId(cat.id)}</div>
+        <h1 class="cph-title">${cat.title.toUpperCase()}</h1>
+        <p class="cph-sub">${cat.subtitle}</p>
+        <div class="cph-stats">
+          ${vids    ? `<div><div class="cph-stat-n">${vids}</div><div class="cph-stat-l">Video</div></div>` : ''}
+          ${posters ? `<div><div class="cph-stat-n">${posters}</div><div class="cph-stat-l">Poster</div></div>` : ''}
+        </div>
+      </div>
+    `;
+
+    document.getElementById('gallery-grid').innerHTML = cat.items.length === 0
+      ? `<div class="g-empty">Belum ada konten.</div>`
+      : cat.items.map((item, i) => `
+          <div class="g-item ${item.type === 'poster' ? 'poster' : ''} anim d${Math.min(i+1,6)}"
+               onclick='openModal(${JSON.stringify(item)})'
+               role="button" tabindex="0"
+               aria-label="${item.title}">
+            <img src="${item.thumbnail || item.src}" alt="${item.title}" loading="lazy"
+                 onerror="this.style.display='none'" />
+            <div class="g-overlay">
+              <div class="g-badge">
+                ${item.type === 'video' ? IC_PLAY + ' Video' : IC_IMG + ' Poster'}
+              </div>
+              <div class="g-name">${item.title}</div>
+            </div>
+            ${item.type === 'video' ? `<div class="g-play">${IC_PLAY}</div>` : ''}
+          </div>
+        `).join('');
+
+    document.querySelectorAll('.g-item').forEach(el => {
+      el.addEventListener('keydown', e => { if (e.key === 'Enter') el.click(); });
+    });
+  }
+
+  /* ================================================================
+     MODAL
+  ================================================================ */
+  function openModal(item) {
+    document.getElementById('modal-title').textContent = item.title;
+    document.getElementById('modal-body').innerHTML = item.type === 'video'
+      ? `<div class="modal-video-wrap">
+           <iframe src="${item.src}"
+             allow="autoplay; fullscreen; picture-in-picture"
+             allowfullscreen></iframe>
+         </div>`
+      : `<div class="modal-poster"><img src="${item.src}" alt="${item.title}" /></div>`;
+
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.getElementById('modal-body').innerHTML = '';
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('modal-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* ================================================================
+     NAVIGATION
+  ================================================================ */
+function navigate(target) {
+    const newHash = target === 'home' ? '' : '#' + target;
+    if (location.hash !== newHash) history.pushState(null, '', location.pathname + newHash);
+    applyRoute(target);
+  }
+
+  function applyRoute(target) {
+    const isHome = !target || target === 'home';
+    document.getElementById('page-home').classList.toggle('active', isHome);
+    document.getElementById('page-category').classList.toggle('active', !isHome);
+    document.getElementById('btn-home').style.display   = isHome ? 'none' : '';
+    document.getElementById('breadcrumb').style.display = isHome ? 'none' : '';
+
+    if (!isHome) {
+      const cat = GALLERY_DATA.find(c => c.id === target);
+      if (cat) {
+        document.getElementById('breadcrumb-label').textContent = cat.title;
+        renderCategory(target);
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+    } else {
+      renderHome();
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+  }
+
+  window.addEventListener('popstate', () => {
+    applyRoute(location.hash.replace('#', '') || 'home');
+  });
+
+  (function init() {
+    applyRoute(location.hash.replace('#', '') || 'home');
+  })();
+</script>
+</body>
+</html>
